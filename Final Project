@@ -1,0 +1,87 @@
+class Task:
+    def __init__(self, name, priority, duration, start_time):
+        self.name = name
+        self.priority = priority
+        self.duration = duration
+        self.start_time = start_time  
+        self.completed = False  
+
+    def __repr__(self):
+        return (f"Task: {self.name}, Priority: {self.priority}, "
+                f"Duration: {self.duration} mins, Start Time: {self.start_time}, "
+                f"Completed: {'Yes' if self.completed else 'No'}")
+
+
+def time_to_minutes(time_str):
+    """Convert time in 'HH:MM AM/PM' format to total minutes since midnight."""
+    time_parts = time_str.split()
+    time = time_parts[0].split(':')
+    hours = int(time[0]) % 12  
+    minutes = int(time[1])
+    
+    if time_parts[1].upper() == 'PM':
+        hours += 12  
+    
+    return hours * 60 + minutes  
+
+
+def create_schedule(tasks):
+    sorted_tasks = sorted(tasks, key=lambda x: time_to_minutes(x.start_time))
+    schedule = []
+
+    for task in sorted_tasks:
+        schedule_item = {
+            "task": task.name,
+            "start_time": task.start_time,
+            "duration": task.duration,
+            "completed": task.completed,
+            "priority": task.priority
+        }
+        schedule.append(schedule_item)
+
+    return schedule
+
+
+def mark_task_completed(task):
+    task.completed = True
+
+def main():
+    print("Welcome to the Task Scheduler Chatbot!")
+    tasks = []
+
+    while True:
+        task_name = input("Please enter your task (or type 'done' when finished): ")
+        if task_name.lower() == 'done':
+            break
+        priority = int(input("Assign priority level (1-5) for task: "))
+        duration = int(input("Estimate duration (in minutes) for task: "))
+        start_time_str = input("Enter the start time for the task (in 'HH:MM AM/PM' format, e.g., '8:00 AM'): ")
+        
+        tasks.append(Task(task_name, priority, duration, start_time_str))  
+
+    schedule = create_schedule(tasks)
+
+    print("\nYour scheduled tasks for the day (in order of events):")
+    for item in schedule:
+        print(f"Task: {item['task']}, Start Time: {item['start_time']}, "
+              f"Duration: {item['duration']} mins, Priority: {item['priority']}, "
+              f"Completed: {'Yes' if item['completed'] else 'No'}")
+
+    while True:
+        completed_task = input("Enter the name of the task you completed (or type 'done' when finished): ")
+        if completed_task.lower() == 'done':
+            break
+        for task in tasks:
+            if task.name.lower() == completed_task.lower():
+                mark_task_completed(task)
+                print(f"Marked '{task.name}' as completed.")
+                break
+        else:
+            print("Task not found. Please enter a valid task name.")
+    print("\nFinal task list with completion status:")
+    for task in tasks:
+        print(f"Task: {task.name}, Priority: {task.priority}, Completed: {'Yes' if task.completed else 'No'}")
+
+
+if __name__ == "__main__":
+    main()
